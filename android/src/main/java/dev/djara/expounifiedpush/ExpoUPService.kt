@@ -73,6 +73,10 @@ class ExpoUPService : PushService() {
         Log.d(TAG, "sending \"message\" action with data: $data")
         sendPushEvent("message", data)
 
+        // Native notification display is disabled by default
+        // Let the JS side handle notifications with proper user preference filtering
+        // To re-enable, uncomment the block below
+        /*
         if (message.decrypted) {
             kotlin.runCatching {
                 showNotification(String(message.content))
@@ -81,6 +85,7 @@ class ExpoUPService : PushService() {
                 sendErrorEvent(err)
             }
         }
+        */
     }
 
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
@@ -98,10 +103,22 @@ class ExpoUPService : PushService() {
             return
         }
 
-        val id = data["id"]?.jsonPrimitive?.long
+        // Support both numeric IDs and string IDs (ActivityPub uses URL strings as IDs)
+        val idPrimitive = data["id"]?.jsonPrimitive
+        val id: Int? = when {
+            idPrimitive == null -> null
+            idPrimitive.isString -> {
+                // Hash the string ID to create a stable numeric ID for notifications
+                idPrimitive.content.hashCode()
+            }
+            else -> kotlin.runCatching { idPrimitive.long.toInt() }.getOrNull()
+        }
         val url = data["url"]?.jsonPrimitive?.content
+        // Support both standard format and ActivityPub-style payloads
         val title = data["title"]?.jsonPrimitive?.content
+            ?: data["type"]?.jsonPrimitive?.content?.replaceFirstChar { it.uppercase() }
         val body = data["body"]?.jsonPrimitive?.content
+            ?: data["preview"]?.jsonPrimitive?.content
         val imageUrl = data["imageUrl"]?.jsonPrimitive?.content
         val count = data["number"]?.jsonPrimitive?.int
         val silent = data["silent"]?.jsonPrimitive?.boolean
