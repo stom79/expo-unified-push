@@ -73,19 +73,14 @@ class ExpoUPService : PushService() {
         Log.d(TAG, "sending \"message\" action with data: $data")
         sendPushEvent("message", data)
 
-        // Native notification display is disabled by default
-        // Let the JS side handle notifications with proper user preference filtering
-        // To re-enable, uncomment the block below
-        /*
-        if (message.decrypted) {
+        // If JS is not alive, show notification natively
+        if (_module == null && message.decrypted) {
             kotlin.runCatching {
                 showNotification(String(message.content))
             }.onFailure { err ->
                 Log.e(TAG, "Error displaying notification: $err")
-                sendErrorEvent(err)
             }
         }
-        */
     }
 
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
