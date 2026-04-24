@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notif_followed_you">%s vous suit</string>
+    <string name="notif_liked_post">%s a aimé votre post</string>
+    <string name="notif_boosted_post">%s a partagé votre post</string>
+    <string name="notif_mentioned_you">%s vous a mentionné</string>
+    <string name="notif_sent_message">%s vous a envoyé un message</string>
+    <string name="notif_reacted_to_post">%s a réagi à votre publication</string>
+    <string name="notif_quote_request">%s veut citer votre post</string>
+</resources>

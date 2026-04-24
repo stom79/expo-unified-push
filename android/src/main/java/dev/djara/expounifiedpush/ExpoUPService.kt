@@ -109,15 +109,22 @@ class ExpoUPService : PushService() {
             else -> kotlin.runCatching { idPrimitive.long.toInt() }.getOrNull()
         }
         val url = data["url"]?.jsonPrimitive?.content
+        val type = data["type"]?.jsonPrimitive?.content
+        val fromName = data["fromName"]?.jsonPrimitive?.content
+        val from = data["from"]?.jsonPrimitive?.content
+        val displayName = fromName ?: from
         // Support both standard format and ActivityPub-style payloads
         val title = data["title"]?.jsonPrimitive?.content
-            ?: data["type"]?.jsonPrimitive?.content?.replaceFirstChar { it.uppercase() }
+            ?: if (displayName != null && type != null) {
+                buildTitleFromType(displayName, type)
+            } else {
+                type?.replaceFirstChar { it.uppercase() }
+            }
         val body = data["body"]?.jsonPrimitive?.content
             ?: data["preview"]?.jsonPrimitive?.content
         val imageUrl = data["imageUrl"]?.jsonPrimitive?.content
         val count = data["number"]?.jsonPrimitive?.int
         val silent = data["silent"]?.jsonPrimitive?.boolean
-        val type = data["type"]?.jsonPrimitive?.content
 
         if (id == null) {
             Log.w(TAG, "Not sending notification without 'id' in json body")
@@ -154,6 +161,23 @@ class ExpoUPService : PushService() {
         }
 
         NotificationManagerCompat.from(this).notify(id.toInt(), notification.build())
+    }
+
+    private fun buildTitleFromType(displayName: String, type: String): String {
+        val resId = when (type) {
+            "follow" -> R.string.notif_followed_you
+            "like" -> R.string.notif_liked_post
+            "boost" -> R.string.notif_boosted_post
+            "mention" -> R.string.notif_mentioned_you
+            "dm" -> R.string.notif_sent_message
+            "reaction" -> R.string.notif_reacted_to_post
+            else -> null
+        }
+        return if (resId != null) {
+            getString(resId, displayName)
+        } else {
+            displayName
+        }
     }
 
     private suspend fun urlToBitmap(url: String): Bitmap {

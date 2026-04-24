@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notif_followed_you">%s started following you</string>
+    <string name="notif_liked_post">%s liked your post</string>
+    <string name="notif_boosted_post">%s boosted your post</string>
+    <string name="notif_mentioned_you">%s mentioned you</string>
+    <string name="notif_sent_message">%s sent you a message</string>
+    <string name="notif_reacted_to_post">%s reacted to your post</string>
+    <string name="notif_quote_request">%s requested to quote your post</string>
+</resources>
